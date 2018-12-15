@@ -41,13 +41,3 @@ REST APIはやめて
 やっぱりElectronでpng画像最適化サービス
 webpackも今回はあきらめて、babel-registerでes2015のみ使う。
 
-
-
-## あああ
-- リスト
-  - リスト
-
-
-
-
-
