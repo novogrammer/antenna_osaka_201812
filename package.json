@@ -2,11 +2,30 @@
   "name": "antenna_osaka_201812",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/main.js",
   "scripts": {
+    "start": "electron .",
+    "inspect": "electron --inspect .",
+    "inspect-brk": "electron --inspect-brk .",
+    "build": "electron-packager . --out bin --overwrite",
+    "clean": "del ./bin/*",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "babel-preset-es2015": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "del-cli": "^1.1.0",
+    "electron": "^3.0.12",
+    "electron-packager": "^13.0.1",
+    "jquery": "^3.3.1",
+    "pngquant": "^1.3.0"
+  }
 }
