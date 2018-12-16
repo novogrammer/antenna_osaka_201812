@@ -22,6 +22,7 @@
   "dependencies": {
     "babel-preset-es2015": "^6.24.1",
     "babel-register": "^6.26.0",
+    "datauri": "^1.1.0",
     "del-cli": "^1.1.0",
     "electron": "^3.0.12",
     "electron-packager": "^13.0.1",
