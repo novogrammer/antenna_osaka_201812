@@ -67,7 +67,7 @@ export default class MainApp{
       }
       this.mainWindow.webContents.send("report compress",bufferResult);
     }).catch((e)=>{
-      console.log(e);
+      this.mainWindow.webContents.send("error compress",e.stack);
     })
 
   }

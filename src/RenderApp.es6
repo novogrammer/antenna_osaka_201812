@@ -55,4 +55,8 @@ export default class RenderApp{
     let $img=$("<img>").attr("src",datauri.content);
     $("body").append($img);
   }
+  onErrorCompress(event,error){
+    console.log("onErrorCompress",error);
+    dialog.showErrorBox("onErrorCompress",error);
+  }
 }
