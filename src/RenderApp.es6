@@ -6,8 +6,14 @@ const $=require('jquery');
 
 import DataURI from "datauri";
 
+import fs from "fs";
+
 export default class RenderApp{
   constructor(){
+    this._originalBuffer=null;
+    this._compressedBuffer=null;
+    this.filename="";
+    this.$imageArea=$(".imageArea");
     this.setupEvents();
   }
   setupEvents(){
@@ -24,13 +30,12 @@ export default class RenderApp{
     let files=originalEvent.dataTransfer.files;
     for(let file of files){
       console.log(file);
+      this.filename=file.name;
       this.fileToBuffer(file).then((buffer)=>{
         this.requestCompress(buffer);
-        let datauri=new DataURI();
-        datauri.format(".png",buffer);
-        let $img=$("<img>").attr("src",datauri.content);
-        $("body").append($img);
+        this.originalBuffer=buffer;
       });
+      break;
     }
     e.stopPropagation();
     e.preventDefault();
@@ -48,15 +53,56 @@ export default class RenderApp{
   requestCompress(buffer){
     ipcRenderer.send("request compress",buffer)
   }
-  onReportCompress(event,buffer){
-    console.log("onReportCompress",buffer);
+  toDataUri(buffer){
     let datauri=new DataURI();
     datauri.format(".png",buffer);
-    let $img=$("<img>").attr("src",datauri.content);
-    $("body").append($img);
+    return datauri.content;
+  }
+  saveImage(filename,buffer){
+    dialog.showSaveDialog({
+      title:"pngを保存する",
+      defaultPath:filename,
+    },(filename,bookmark)=>{
+      console.log(filename);
+      fs.writeFile(filename,buffer,(error,bytesWritten,buffer)=>{
+        if(error && error.stack){
+          dialog.showErrorBox("saveImage",error.stack);
+        }
+      })
+    });
+  }
+  get originalBuffer(){
+    return this._originalBuffer;
+  }
+  set originalBuffer(originalBuffer){
+    this._originalBuffer=originalBuffer;
+    this.$imageArea.find(".original").remove();
+    if(originalBuffer){
+      let $img=$("<img>").attr("src",this.toDataUri(originalBuffer)).addClass("original");
+      this.$imageArea.append($img);
+    }
+  }
+  get compressedBuffer(){
+    return this._compressedBuffer;
+  }
+  set compressedBuffer(compressedBuffer){
+    this._compressedBuffer=compressedBuffer;
+    this.$imageArea.find(".compressed").remove();
+    if(compressedBuffer){
+      let $img=$("<img>").attr("src",this.toDataUri(compressedBuffer)).addClass("compressed");
+      $img.on("click",()=>{
+        this.saveImage(this.filename,compressedBuffer);
+      })
+      this.$imageArea.append($img);
+    }
+  }
+  onReportCompress(event,buffer){
+    console.log("onReportCompress",buffer);
+    this.compressedBuffer=buffer;
   }
   onErrorCompress(event,error){
     console.log("onErrorCompress",error);
+    this.compressedBuffer=null;
     dialog.showErrorBox("onErrorCompress",error);
   }
 }
