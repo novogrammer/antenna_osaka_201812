@@ -39,7 +39,7 @@ export default class MainApp{
       shell.openExternal(url);
     });
     
-    this.mainWindow.webContents.openDevTools();
+    //this.mainWindow.webContents.openDevTools();
 
     //this.mainWindow.on('closed', function () {
     //  this.mainWindow = null;
