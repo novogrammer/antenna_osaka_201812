@@ -1,0 +1,137 @@
+@startuml
+
+package nodejs{
+  class Stream{
+    
+  }
+  class Buffer{
+    
+  }
+  class EventEmitter{
+    on(eventName:String,listener:Function)
+    off(eventName:String,listener:Function)
+    emit(eventName:String[,...args])
+  }
+  class fs{
+    writeFile(file:String,data:Buffer[,options:Object],callback:Function)
+  }
+  class FileReader{
+    
+  }
+}
+
+package electron{
+  class BrowserWindow extends EventEmitter{
+    webContents:WebContents
+    loadURL(url:String)
+  }
+  class WebContents extends EventEmitter{
+    
+  }
+  class IpcMain extends EventEmitter{
+    
+  }
+  class IpcRenderer extends EventEmitter{
+    
+  }
+  class Dialog{
+    showSaveDialog(options:Object,callback:Function)
+    showErrorBox(title:String,content:String)
+  }
+  
+}
+
+
+package pngquant{
+  class PngQuant extends Stream{
+    
+  }
+}
+package datauri{
+  class DataURI{
+    content:String
+    format(fileName:String,fileContent:Buffer)
+  }
+}
+
+package jquery{
+  class jQuery{
+    
+  }
+  class jQueryElements{
+    
+  }
+  class jQueryEvent{
+    
+  }
+}
+
+
+
+
+class MainApp{
+  mainWindow:BrowserWindow
+  createWindow()
+  compress(originalFileBuffer:Buffer):Buffer
+  onCompressRequest(event,bufferOriginal)
+}
+
+class RenderApp{
+  _originalBuffer:Buffer
+  _compressedBuffer:Buffer
+  filename:String
+  $imageArea:jQueryElements
+  setupEvents()
+  onDrop(e:jQueryEvent)
+  fileToBuffer(file:File):Buffer
+  requestCompress(buffer:Buffer)
+  toDataUri(buffer:Buffer):String
+  saveImage(filename,buffer)
+  <<property>>originalBuffer:Buffer
+  <<property>>compressedBuffer:Buffer
+  onReportCompress(event,buffer:Buffer)
+  onErrorCompress(event,error:String)
+}
+
+class stream_utils{
+  streamToBuffer(stream:Stream):Promise<Buffer,Error>
+  bufferToStream(buffer:Buffer):Stream
+}
+
+BrowserWindow "1" *-left- WebContents
+
+
+MainApp "0..1" o-up- BrowserWindow
+MainApp .up.> IpcMain:on
+MainApp .up.> WebContents:send
+MainApp .down.> stream_utils:<<use>>
+MainApp .up.> PngQuant:<<use>>
+
+RenderApp .up.> jQuery:<<use>>
+RenderApp "1" *-up- jQueryElements
+RenderApp "0..2" o-up- Buffer
+RenderApp .up.> IpcRenderer:on,send
+RenderApp .right.> DataURI:<<use>>
+'stream_utils .up.> Buffer:<<use>>
+'stream_utils .up.> Stream:<<use>>
+
+note left of MainApp{
+  メインプロセス
+} 
+note left of RenderApp{
+  レンダラープロセス
+  ブラウザにあたる。
+  EventEmitterベースのIPCを通じてメインプロセスに処理を依頼する。
+  
+  プロパティではset時に再描画処理を行っている。
+  ファイル保存時に読み込んだ時のファイル名をデフォルト値にするために覚えておく。
+  
+} 
+
+note left of PngQuant{
+  パラメーターを設定できる。
+  今回は決め打ち。
+} 
+
+
+@enduml
